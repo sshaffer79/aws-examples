@@ -1,0 +1,14 @@
+Resources:
+  S3NotificationQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: 's3-notification'
+  S3NotificationBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: S3ToSQSPolicy
+    Properties:
+      BucketName: 's3-notification-testing'
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Queue: !Sub '${S3NotificationQueue.Arn}
