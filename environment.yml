@@ -3,12 +3,27 @@ Resources:
     Type: 'AWS::SQS::Queue'
     Properties:
       QueueName: 's3-notification'
+  S3ToSQSPolicy:
+    Type: 'AWS::SQS::QueuePolicy'
+    DependsOn: S3NotificationQueue
+    Properties: 
+      Queues: 
+        - !Ref S3NotificationQueue
+      PolicyDocument: 
+        Id: S3ToSQSPolicy
+        Version: '2012-10-17'
+        Statement:
+        - Sid: s3-to-sqs
+          Effect: Allow
+          Action: SQS:*
+          Principal: "*"
+          Resource: !Sub '${S3NotificationQueue.Arn}'
   S3NotificationBucket:
-    Type: AWS::S3::Bucket
+    Type: 'AWS::S3::Bucket'
     DependsOn: S3ToSQSPolicy
     Properties:
       BucketName: 's3-notification-testing'
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
-            Queue: !Sub '${S3NotificationQueue.Arn}
+            Queue: !Sub '${S3NotificationQueue.Arn}'
