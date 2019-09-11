@@ -18,6 +18,9 @@ Resources:
           Action: SQS:*
           Principal: "*"
           Resource: !Sub '${S3NotificationQueue.Arn}'
+          Condition:
+            ArnLike:
+              AWS:SourceArn : 'arn:aws:s3:*:*:s3-notification-testing'
   S3NotificationBucket:
     Type: 'AWS::S3::Bucket'
     DependsOn: S3ToSQSPolicy
@@ -27,3 +30,10 @@ Resources:
         QueueConfigurations:
           - Event: s3:ObjectCreated:*
             Queue: !Sub '${S3NotificationQueue.Arn}'
+            Filter:
+              S3Key:
+                Rules:
+                - Name: 'prefix'
+                  Value: 'folderB'
+                - Name: 'suffix'
+                  Value: '.json'
